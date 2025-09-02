@@ -124,8 +124,8 @@ public class ChestShopModule extends AbstractModule implements ShopModule {
 
         this.addAsyncTask(this::saveShopsIfRequired, ChestConfig.SAVE_INTERVAL.get());
 
-        this.plugin.runTaskAsync(task -> this.loadBanks());
-        this.plugin.runTask(task -> this.lookup().getAll().forEach(this::activateShop));
+        this.plugin.runTaskAsync(this::loadBanks);
+        this.plugin.runNextTick(() -> this.lookup().getAll().forEach(this::activateShop));
     }
 
     private void loadConfig(@NotNull FileConfig config) {
@@ -541,6 +541,14 @@ public class ChestShopModule extends AbstractModule implements ShopModule {
             }
         }
 
+        // Folia-safe teleport
+        if (this.plugin.getFoliaScheduler().isFolia()) {
+            try {
+                return this.plugin.getFoliaScheduler().teleportAsync(player, location).get();
+            } catch (Exception ignored) {
+                return false;
+            }
+        }
         return player.teleport(location);
     }
 
@@ -622,7 +630,7 @@ public class ChestShopModule extends AbstractModule implements ShopModule {
             if (shop.isRentable() && !shop.isRented()) {
                 UIUtils.openConfirmation(player, Confirmation.builder()
                     .onAccept((viewer, event1) -> this.rentShopOrExtend(player, shop))
-                    .onReturn((viewer, event1) -> this.plugin.runTask(task -> player.closeInventory()))
+                    .onReturn((viewer, event1) -> this.plugin.runAtEntity(player, player::closeInventory))
                     .returnOnAccept(true)
                     .build());
                 return;

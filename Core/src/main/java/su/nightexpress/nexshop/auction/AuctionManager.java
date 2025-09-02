@@ -210,11 +210,11 @@ public class AuctionManager extends AbstractModule {
             .onAccept((viewer, event) -> {
                 this.buy(player, listing);
                 if (!AuctionConfig.MENU_REOPEN_ON_PURCHASE.get()) {
-                    this.plugin.runTask(task -> player.closeInventory());
+                    this.plugin.runAtEntity(player, player::closeInventory);
                 }
             })
             .onReturn((viewer, event) -> {
-                this.plugin.runTask(task -> this.openAuction(viewer.getPlayer()));
+                this.plugin.runAtEntity(viewer.getPlayer(), () -> this.openAuction(viewer.getPlayer()));
             })
             .setIcon(NightItem.fromItemStack(listing.getItemStack()).localized(AuctionLang.UI_BUY_CONFIRM).replacement(replacer -> replacer.replace(listing.replacePlaceholders())))
             .returnOnAccept(AuctionConfig.MENU_REOPEN_ON_PURCHASE.get())
