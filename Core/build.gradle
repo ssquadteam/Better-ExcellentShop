@@ -12,7 +12,11 @@ dependencies {
     compileOnly 'org.jetbrains:annotations:24.1.0'
 
     compileOnly 'com.github.TechFortress:GriefPrevention:16.18.2'
-    compileOnly 'net.alex9849.arm:AdvancedRegionMarket:3.5.5'
+    compileOnly 'com.sk89q.worldedit:worldedit-bukkit:7.3.8'
+    compileOnly 'com.sk89q.worldedit:worldedit-core:7.3.8'
+    compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.9'
+    compileOnly 'com.griefdefender:api:2.1.0-SNAPSHOT'
+    compileOnly 'com.github.cryptomorin:kingdoms:1.16.8.1.1'
     compileOnly 'com.github.angeschossen:LandsAPI:7.12.7'
     compileOnly 'net.william278.huskclaims:huskclaims-bukkit:1.5.2'
     compileOnly 'com.comphenix.protocol:ProtocolLib:5.3.0'

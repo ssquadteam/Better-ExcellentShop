@@ -27,6 +27,7 @@ subprojects {
         maven { name = 'phoenix'; url = 'https://nexus.phoenixdevt.fr/repository/maven-public/' }
         maven { name = 'codemc-releases'; url = 'https://repo.codemc.io/repository/maven-releases/' }
         maven { name = 'william278'; url = 'https://repo.william278.net/releases' }
+        maven { name = 'glaremasters'; url = 'https://repo.glaremasters.me/repository/bloodshot/' }
         maven { name = 'nightexpress-releases'; url = 'https://repo.nightexpressdev.com/releases' }
         maven { name = 'jitpack'; url = 'https://jitpack.io' }
         maven { name = 'md_5-releases'; url = 'https://repo.md-5.net/content/repositories/releases/' }
@@ -35,6 +36,3 @@ subprojects {
     }
 }
 
-dependencies {
-    subprojects.each { if (it.name == 'Stubs') { implementation it } }
-}
