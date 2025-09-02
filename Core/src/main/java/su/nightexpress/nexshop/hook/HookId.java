@@ -2,7 +2,6 @@ package su.nightexpress.nexshop.hook;
 
 public class HookId {
 
-    public static final String PROTOCOL_LIB   = "ProtocolLib";
     public static final String PACKET_EVENTS  = "packetevents";
     @Deprecated
     public static final String ECONOMY_BRIDGE = "EconomyBridge";

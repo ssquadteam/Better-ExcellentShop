@@ -19,7 +19,6 @@ dependencies {
     compileOnly 'com.github.cryptomorin:kingdoms:1.16.8.1.1'
     compileOnly 'com.github.angeschossen:LandsAPI:7.12.7'
     compileOnly 'net.william278.huskclaims:huskclaims-bukkit:1.5.2'
-    compileOnly 'com.comphenix.protocol:ProtocolLib:5.3.0'
     compileOnly 'com.github.angeschossen:UpgradeableHoppersAPI:4.13.10'
 
     compileOnly name: 'nightcore-2.7.18', version: '2.7.18'

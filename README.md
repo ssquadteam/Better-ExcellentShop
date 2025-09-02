@@ -74,7 +74,7 @@
 - [EconomyBridge](https://nightexpressdev.com/economy-bridge/) - Economy, currency and custom item compatibilities.
 
 **OPTIONAL:**
-- [ProtocolLib](https://ci.dmulloy2.net/job/ProtocolLib/) or [PacketEvents](https://spigotmc.org/resources/80279/) - For chest shop holograms.
+- [PacketEvents](https://spigotmc.org/resources/80279/) - For chest shop holograms.
 
 # Downloads & Documentation
 - [SpigotMC](https://spigotmc.org/resources/50696/)

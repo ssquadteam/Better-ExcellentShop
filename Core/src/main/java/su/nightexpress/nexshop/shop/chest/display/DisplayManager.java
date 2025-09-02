@@ -17,7 +17,6 @@ import su.nightexpress.nexshop.shop.chest.display.impl.FakeEntity;
 import su.nightexpress.nexshop.shop.chest.display.impl.FakeType;
 import su.nightexpress.nexshop.shop.chest.display.handler.DisplayHandler;
 import su.nightexpress.nexshop.shop.chest.display.handler.PacketEventsHandler;
-import su.nightexpress.nexshop.shop.chest.display.handler.ProtocolLibHandler;
 import su.nightexpress.nexshop.shop.chest.impl.ChestProduct;
 import su.nightexpress.nexshop.shop.chest.impl.ChestShop;
 import su.nightexpress.nexshop.shop.chest.impl.Showcase;
@@ -72,9 +71,6 @@ public class DisplayManager extends AbstractManager<ShopPlugin> {
     private DisplayHandler<?> createHandler() {
         if (Plugins.isInstalled(HookId.PACKET_EVENTS) && Version.isPaper()) {
             return new PacketEventsHandler();
-        }
-        else if (Plugins.isLoaded(HookId.PROTOCOL_LIB)) {
-            return new ProtocolLibHandler();
         }
         return null;
     }

@@ -13,7 +13,6 @@ softdepend:
   - GriefPrevention
   - HuskClaims
   - PlaceholderAPI
-  - ProtocolLib
   - packetevents
   - Oraxen
   - ItemsAdder
