@@ -1,0 +1,51 @@
+plugins {
+    id 'java'
+    id 'com.gradleup.shadow' version '9.0.0'
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.18"
+}
+
+dependencies {
+    paperweight.paperDevBundle("1.21.8-R0.1-SNAPSHOT")
+
+    compileOnly 'com.github.retrooper:packetevents-spigot:2.9.5'
+    compileOnly 'me.clip:placeholderapi:2.11.6'
+    compileOnly 'org.jetbrains:annotations:24.1.0'
+
+    compileOnly 'com.github.TechFortress:GriefPrevention:16.18.2'
+    compileOnly 'net.alex9849.arm:AdvancedRegionMarket:3.5.5'
+    compileOnly 'com.github.angeschossen:LandsAPI:7.12.7'
+    compileOnly 'net.william278.huskclaims:huskclaims-bukkit:1.5.2'
+    compileOnly 'com.comphenix.protocol:ProtocolLib:5.3.0'
+    compileOnly 'com.github.angeschossen:UpgradeableHoppersAPI:4.13.10'
+
+    compileOnly name: 'nightcore-2.7.18', version: '2.7.18'
+    compileOnly name: 'CoinsEngine-2.5.7', version: '2.5.7'
+    compileOnly name: 'EconomyBridge-1.2.4', version: '1.2.4'
+    compileOnly name: 'advancedregionmarket-3.5.5', version: '3.5.5'
+}
+
+processResources {
+    filteringCharset = 'UTF-8'
+    filesMatching('plugin.yml') { expand(project.parent.properties) }
+}
+
+tasks.named('shadowJar') {
+    archiveBaseName = rootProject.name
+    archiveClassifier = ''
+}
+
+paperweight.reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArtifactConfiguration.getMOJANG_PRODUCTION()
+
+tasks.named('assemble') { dependsOn tasks.named('reobfJar') }
+
+tasks.named('shadowJar') { finalizedBy tasks.named('reobfJar') }
+
+tasks.register('deliverJars', Copy) {
+    dependsOn tasks.named('reobfJar'), tasks.named('shadowJar')
+    from(layout.buildDirectory.dir('libs')) {
+        include "${rootProject.name}-${version}.jar"
+    }
+    into("${rootDir}/target")
+}
+
+tasks.named('build') { finalizedBy tasks.named('deliverJars') }

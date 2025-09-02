@@ -1,0 +1,17 @@
+plugins {
+  id 'java'
+}
+
+dependencies {
+  compileOnly 'com.comphenix.protocol:ProtocolLib:5.3.0'
+  compileOnly 'com.github.retrooper:packetevents-spigot:2.9.4'
+  compileOnly 'me.clip:placeholderapi:2.11.6'
+  compileOnly 'io.papermc.paper:paper-api:1.21.5-R0.1-SNAPSHOT'
+  compileOnly 'org.jetbrains:annotations:24.1.0'
+  compileOnly 'com.griefdefender:api:2.1.0-SNAPSHOT'
+  compileOnly 'com.github.TechFortress:GriefPrevention:16.18.2'
+  compileOnly 'com.github.angeschossen:LandsAPI:7.12.7'
+  compileOnly 'net.william278.huskclaims:huskclaims-bukkit:1.5.2'
+
+  compileOnly name: 'advancedregionmarket-3.5.5', version: '3.5.5'
+}

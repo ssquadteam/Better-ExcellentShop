@@ -13,3 +13,8 @@
 /V1_20_R2/target/
 /V1_20_R2/pom.xml.versionsBackup
 /pom.xml.versionsBackup
+build
+*/build
+.gradle
+bin
+*/bin

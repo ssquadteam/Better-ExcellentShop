@@ -1,0 +1,40 @@
+plugins {
+  id 'java'
+  id 'com.gradleup.shadow' version '9.0.0'
+}
+
+allprojects {
+    group = 'su.nightexpress.excellentshop'
+    version = '4.19.0'
+}
+
+subprojects {
+    apply plugin: 'java'
+
+    java {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+        withSourcesJar()
+    }
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { name = 'enginehub'; url = 'https://maven.enginehub.org/repo/' }
+        maven { name = 'papermc'; url = 'https://repo.papermc.io/repository/maven-public/' }
+        maven { name = 'dmulloy2-repo'; url = 'https://repo.dmulloy2.net/repository/public/' }
+        maven { name = 'placeholderapi'; url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
+        maven { name = 'phoenix'; url = 'https://nexus.phoenixdevt.fr/repository/maven-public/' }
+        maven { name = 'codemc-releases'; url = 'https://repo.codemc.io/repository/maven-releases/' }
+        maven { name = 'william278'; url = 'https://repo.william278.net/releases' }
+        maven { name = 'nightexpress-releases'; url = 'https://repo.nightexpressdev.com/releases' }
+        maven { name = 'jitpack'; url = 'https://jitpack.io' }
+        maven { name = 'md_5-releases'; url = 'https://repo.md-5.net/content/repositories/releases/' }
+        maven { name = 'md_5-snapshots'; url = 'https://repo.md-5.net/content/repositories/snapshots/' }
+        flatDir { dirs "$rootDir/libs" }
+    }
+}
+
+dependencies {
+    subprojects.each { if (it.name == 'Stubs') { implementation it } }
+}
