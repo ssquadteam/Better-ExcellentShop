@@ -118,6 +118,45 @@ public class DataManager extends AbstractManager<ShopPlugin> {
         this.rotationDataMap.put(new RotationKey(data.getShopId(), data.getRotationId()), data);
     }
 
+    // =========================
+    // External sync apply (Redis)
+    // =========================
+    public void applyExternalPriceData(@NotNull PriceData data) {
+        this.priceDataMap.put(new ProductKey(data.getShopId(), data.getProductId(), data.getShopId()), data);
+    }
+
+    public void applyExternalDeletePriceDataByShop(@NotNull String shopId) {
+        this.priceDataMap.keySet().removeIf(k -> k.getShopId().equalsIgnoreCase(shopId));
+    }
+
+    public void applyExternalDeletePriceDataByProduct(@NotNull String shopId, @NotNull String productId) {
+        this.priceDataMap.keySet().removeIf(k -> k.getShopId().equalsIgnoreCase(shopId) && k.getProductId().equalsIgnoreCase(productId));
+    }
+
+    public void applyExternalStockData(@NotNull StockData data) {
+        this.stockDataMap.put(new ProductKey(data.getShopId(), data.getProductId(), data.getHolder()), data);
+    }
+
+    public void applyExternalDeleteStockDataByShop(@NotNull String shopId) {
+        this.stockDataMap.keySet().removeIf(k -> k.getShopId().equalsIgnoreCase(shopId));
+    }
+
+    public void applyExternalDeleteStockDataByProduct(@NotNull String shopId, @NotNull String productId) {
+        this.stockDataMap.keySet().removeIf(k -> k.getShopId().equalsIgnoreCase(shopId) && k.getProductId().equalsIgnoreCase(productId));
+    }
+
+    public void applyExternalRotationData(@NotNull RotationData data) {
+        this.rotationDataMap.put(new RotationKey(data.getShopId(), data.getRotationId()), data);
+    }
+
+    public void applyExternalDeleteRotationDataByShop(@NotNull String shopId) {
+        this.rotationDataMap.keySet().removeIf(k -> k.getShopId().equalsIgnoreCase(shopId));
+    }
+
+    public void applyExternalDeleteRotationDataByRotation(@NotNull String shopId, @NotNull String rotationId) {
+        this.rotationDataMap.keySet().removeIf(k -> k.getShopId().equalsIgnoreCase(shopId) && k.getRotationId().equalsIgnoreCase(rotationId));
+    }
+
 
     public void saveScheduledDatas() {
         this.saveScheduledPriceDatas();
@@ -126,15 +165,33 @@ public class DataManager extends AbstractManager<ShopPlugin> {
     }
 
     public void saveScheduledPriceDatas() {
-        this.saveScheduledDatas(this.getPriceDatas(), DataHandler::updatePriceDatas, "price");
+        Set<PriceData> toSave = this.getPriceDatas().stream()
+            .filter(PriceData::isSaveRequired)
+            .peek(d -> d.setSaveRequired(false))
+            .collect(java.util.stream.Collectors.toSet());
+        if (toSave.isEmpty()) return;
+        this.plugin.getDataHandler().updatePriceDatas(toSave);
+        this.plugin.getRedisSyncManager().ifPresent(sync -> toSave.forEach(sync::publishPriceData));
     }
 
     public void saveScheduledStockDatas() {
-        this.saveScheduledDatas(this.getStockDatas(), DataHandler::updateStockDatas, "stock");
+        Set<StockData> toSave = this.getStockDatas().stream()
+            .filter(StockData::isSaveRequired)
+            .peek(d -> d.setSaveRequired(false))
+            .collect(java.util.stream.Collectors.toSet());
+        if (toSave.isEmpty()) return;
+        this.plugin.getDataHandler().updateStockDatas(toSave);
+        this.plugin.getRedisSyncManager().ifPresent(sync -> toSave.forEach(sync::publishStockData));
     }
 
     public void saveScheduledRotationDatas() {
-        this.saveScheduledDatas(this.getRotationDatas(), DataHandler::updateRotationDatas, "rotation");
+        Set<RotationData> toSave = this.getRotationDatas().stream()
+            .filter(RotationData::isSaveRequired)
+            .peek(d -> d.setSaveRequired(false))
+            .collect(java.util.stream.Collectors.toSet());
+        if (toSave.isEmpty()) return;
+        this.plugin.getDataHandler().updateRotationDatas(toSave);
+        this.plugin.getRedisSyncManager().ifPresent(sync -> toSave.forEach(sync::publishRotationData));
     }
 
     private <T extends Saveable> void saveScheduledDatas(@NotNull Set<T> originDatas, @NotNull BiConsumer<DataHandler, Set<T>> consumer, @NotNull String name) {
@@ -158,6 +215,13 @@ public class DataManager extends AbstractManager<ShopPlugin> {
             this.rotationDataMap.keySet().removeIf(key -> key.isShop(shop));
             this.priceDataMap.keySet().removeIf(key -> key.isShop(shop));
             this.stockDataMap.keySet().removeIf(key -> key.isShop(shop));
+
+            this.plugin.getRedisSyncManager().ifPresent(sync -> {
+                String shopId = shop.getId();
+                sync.publishRotationDataDeleteByShop(shopId);
+                sync.publishPriceDataDeleteByShop(shopId);
+                sync.publishStockDataDeleteByShop(shopId);
+            });
         });
     }
 
@@ -186,6 +250,7 @@ public class DataManager extends AbstractManager<ShopPlugin> {
         RotationData data = new RotationData(rotation.getShop().getId(), rotation.getId());
         this.loadRotationData(data);
         this.plugin.runTaskAsync(task -> plugin.getDataHandler().insertRotationData(data));
+        this.plugin.getRedisSyncManager().ifPresent(sync -> sync.publishRotationData(data));
         return data;
     }
 
@@ -193,6 +258,7 @@ public class DataManager extends AbstractManager<ShopPlugin> {
         this.plugin.runTaskAsync(task -> {
             this.plugin.getDataHandler().deleteRotationData(rotation); // First remove from the database.
             this.rotationDataMap.remove(RotationKey.from(rotation)); // Now clean up memory (so no duplicates can be created during the deletion process).
+            this.plugin.getRedisSyncManager().ifPresent(sync -> sync.publishRotationDataDeleteByRotation(rotation.getShop().getId(), rotation.getId()));
         });
     }
 
@@ -231,6 +297,7 @@ public class DataManager extends AbstractManager<ShopPlugin> {
         PriceData fresh = PriceData.create(product);
         this.loadPriceData(fresh);
         this.plugin.runTaskAsync(task -> this.plugin.getDataHandler().insertPriceData(fresh));
+        this.plugin.getRedisSyncManager().ifPresent(sync -> sync.publishPriceData(fresh));
         return fresh;
     }
 
@@ -245,6 +312,7 @@ public class DataManager extends AbstractManager<ShopPlugin> {
         this.plugin.runTaskAsync(task -> {
             this.plugin.getDataHandler().deletePriceData(product); // First remove from the database.
             this.priceDataMap.remove(ProductKey.global(product)); // Now clean up memory (so no duplicates can be created during the deletion process).
+            this.plugin.getRedisSyncManager().ifPresent(sync -> sync.publishPriceDataDeleteByProduct(product.getShop().getId(), product.getId()));
         });
     }
 
@@ -329,6 +397,7 @@ public class DataManager extends AbstractManager<ShopPlugin> {
         StockData fresh = StockData.create(product, values, playerId);
         this.loadStockData(fresh);
         this.plugin.runTaskAsync(task -> plugin.getDataHandler().insertStockData(fresh));
+        this.plugin.getRedisSyncManager().ifPresent(sync -> sync.publishStockData(fresh));
         return fresh;
     }
 
@@ -336,6 +405,7 @@ public class DataManager extends AbstractManager<ShopPlugin> {
         this.plugin.runTaskAsync(task -> {
             this.plugin.getDataHandler().deleteStockData(product);  // First remove from the database.
             this.stockDataMap.remove(ProductKey.global(product)); // Now clean up memory (so no duplicates can be created during the deletion process).
+            this.plugin.getRedisSyncManager().ifPresent(sync -> sync.publishStockDataDeleteByProduct(product.getShop().getId(), product.getId()));
         });
     }
 

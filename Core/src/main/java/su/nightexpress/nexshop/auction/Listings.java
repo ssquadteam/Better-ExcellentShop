@@ -61,6 +61,12 @@ public class Listings {
         this.completedByOwnerId.getOrDefault(listing.getOwner(), Collections.emptySet()).remove(listing);
     }
 
+    @Nullable
+    public CompletedListing getCompletedById(@NotNull UUID id) {
+        this.removeInvalidCompleted();
+        return this.completedById.getOrDefault(id, null);
+    }
+
     public void removeInvalidActive() {
         this.activeById.values().removeIf(AbstractListing::isDeletionTime);
         this.activeByOwnerId.values().forEach(set -> set.removeIf(AbstractListing::isDeletionTime));
@@ -123,6 +129,9 @@ public class Listings {
 
         return new ArrayList<>(this.completedByOwnerId.getOrDefault(id, Collections.emptySet()));
     }
+
+    @Nullable
+    CompletedListing getCompletedById(@NotNull UUID id, boolean expose) { return getCompletedById(id); }
 
 
 

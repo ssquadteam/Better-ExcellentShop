@@ -413,8 +413,9 @@ public class ChestShopModule extends AbstractModule implements ShopModule {
     public ChestBank getPlayerBank(@NotNull UUID uuid) {
         ChestBank bank = this.getBankMap().get(uuid);
         if (bank == null) {
-            ChestBank bank2 = new ChestBank(uuid, new HashMap<>());
-            this.plugin.runTaskAsync(task -> this.plugin.getDataHandler().createChestBank(bank2));
+        ChestBank bank2 = new ChestBank(uuid, new HashMap<>());
+        this.plugin.runTaskAsync(task -> this.plugin.getDataHandler().createChestBank(bank2));
+        this.plugin.getRedisSyncManager().ifPresent(sync -> sync.publishChestBank(bank2));
             this.getBankMap().put(uuid, bank2);
             return bank2;
         }
@@ -430,6 +431,7 @@ public class ChestShopModule extends AbstractModule implements ShopModule {
 
     public void savePlayerBank(@NotNull ChestBank bank) {
         this.plugin.runTaskAsync(task -> this.plugin.getDataHandler().saveChestBank(bank));
+        this.plugin.getRedisSyncManager().ifPresent(sync -> sync.publishChestBank(bank));
     }
 
     @NotNull

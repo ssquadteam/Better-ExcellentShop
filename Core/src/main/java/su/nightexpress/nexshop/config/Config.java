@@ -103,4 +103,37 @@ public class Config {
         map -> map.putAll(ModuleConfig.getDefaultConfigs()),
         "Module settings."
     );
+
+    public static final ConfigValue<Boolean> REDIS_ENABLED = ConfigValue.create("Redis.Enabled",
+        false,
+        "Enable realtime synchronization over Redis pub/sub."
+    );
+    public static final ConfigValue<String> REDIS_HOST = ConfigValue.create("Redis.Host",
+        "127.0.0.1",
+        "Redis server host."
+    );
+    public static final ConfigValue<Integer> REDIS_PORT = ConfigValue.create("Redis.Port",
+        6379,
+        "Redis server port."
+    );
+    public static final ConfigValue<String> REDIS_PASSWORD = ConfigValue.create("Redis.Password",
+        "",
+        "Redis server password, leave empty if none."
+    );
+    public static final ConfigValue<Boolean> REDIS_SSL = ConfigValue.create("Redis.SSL",
+        false,
+        "Use SSL/TLS for Redis connection."
+    );
+    public static final ConfigValue<String> REDIS_CHANNEL = ConfigValue.create("Redis.Channel",
+        "excellentshop:sync",
+        "Redis pub/sub channel name used for this plugin."
+    );
+    public static final ConfigValue<String> REDIS_NODE_ID = ConfigValue.create("Redis.NodeId",
+        "",
+        "Optional node identifier. If empty, a random UUID is used at runtime."
+    );
+
+    public static boolean isRedisEnabled() {
+        return REDIS_ENABLED.get();
+    }
 }

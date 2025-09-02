@@ -43,6 +43,7 @@ public class ShopPlugin extends NightPlugin implements ImprovedCommands {
     private DataManager dataManager;
     private UserManager userManager;
     private ShopManager shopManager;
+    private su.nightexpress.nexshop.sync.RedisSyncManager redisSyncManager;
 
     private final Map<Class<? extends Module>, Module> modules = new HashMap<>();
 
@@ -99,6 +100,10 @@ public class ShopPlugin extends NightPlugin implements ImprovedCommands {
         this.shopManager = new ShopManager(this);
         this.shopManager.setup();
 
+        // Initialize Redis sync (optional)
+        this.redisSyncManager = new su.nightexpress.nexshop.sync.RedisSyncManager(this);
+        this.redisSyncManager.setup();
+
         this.loadModules();
 
         if (Plugins.hasPlaceholderAPI()) {
@@ -122,6 +127,7 @@ public class ShopPlugin extends NightPlugin implements ImprovedCommands {
         if (this.userManager != null) this.userManager.shutdown();
         if (this.dataManager != null) this.dataManager.shutdown();
         if (this.dataHandler != null) this.dataHandler.shutdown();
+        if (this.redisSyncManager != null) this.redisSyncManager.shutdown();
 
         Keys.clear();
         ShopAPI.clear();
@@ -175,6 +181,11 @@ public class ShopPlugin extends NightPlugin implements ImprovedCommands {
     @NotNull
     public ShopManager getShopManager() {
         return shopManager;
+    }
+
+    @NotNull
+    public java.util.Optional<su.nightexpress.nexshop.sync.RedisSyncManager> getRedisSyncManager() {
+        return java.util.Optional.ofNullable(this.redisSyncManager);
     }
 
     @Nullable

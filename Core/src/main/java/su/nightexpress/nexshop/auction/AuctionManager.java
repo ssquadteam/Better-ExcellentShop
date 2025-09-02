@@ -400,6 +400,7 @@ public class AuctionManager extends AbstractModule {
 
         this.listings.add(listing);
         this.plugin.runTaskAsync(task -> this.database.addListing(listing));
+        this.plugin.getRedisSyncManager().ifPresent(sync -> sync.publishAuctionListingAdd(listing));
 
         AuctionLang.LISTING_ADD_SUCCESS_INFO.message().send(player, replacer -> replacer
             .replace(Placeholders.GENERIC_TAX, currency.format(taxPay))
@@ -443,6 +444,7 @@ public class AuctionManager extends AbstractModule {
             this.database.addCompletedListing(completedListing);
             this.database.deleteListing(listing);
         });
+        this.plugin.getRedisSyncManager().ifPresent(sync -> sync.publishAuctionCompletedAdd(completedListing));
         AuctionLang.LISTING_BUY_SUCCESS_INFO.message().send(buyer, replacer -> replacer.replace(listing.replacePlaceholders()));
 
         // Notify the seller about the purchase.
@@ -472,6 +474,7 @@ public class AuctionManager extends AbstractModule {
         Players.addItem(player, listing.getItemStack());
         this.listings.remove(listing);
         this.plugin.runTaskAsync(task -> this.database.deleteListing(listing));
+        this.plugin.getRedisSyncManager().ifPresent(sync -> sync.publishAuctionListingDelete(listing.getId()));
 
         this.mainMenu.flush();
     }
@@ -490,6 +493,7 @@ public class AuctionManager extends AbstractModule {
         }
 
         this.plugin.runTaskAsync(task -> this.database.saveCompletedListings(listings));
+        this.plugin.getRedisSyncManager().ifPresent(sync -> listings.forEach(l -> sync.publishAuctionCompletedUpdate(l.getId(), l.isClaimed())));
     }
 
     public boolean canBeUsedHere(@NotNull Player player) {
