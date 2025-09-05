@@ -136,4 +136,19 @@ public class Config {
     public static boolean isRedisEnabled() {
         return REDIS_ENABLED.get();
     }
+
+    public static final ConfigValue<Boolean> REDIS_CACHE_ENABLED = ConfigValue.create("Redis.Cache.Enabled",
+        true,
+        "Use Redis as a cache for price and stock data in addition to SQL."
+    );
+
+    public static final ConfigValue<Integer> REDIS_CACHE_TTL_PRICE_SECONDS = ConfigValue.create("Redis.Cache.Price_TTL_Seconds",
+        3600,
+        "TTL (seconds) for cached price data. 0 or negative disables TTL."
+    );
+
+    public static final ConfigValue<Integer> REDIS_CACHE_TTL_STOCK_SECONDS = ConfigValue.create("Redis.Cache.Stock_TTL_Seconds",
+        900,
+        "TTL (seconds) for cached stock data. 0 or negative disables TTL."
+    );
 }

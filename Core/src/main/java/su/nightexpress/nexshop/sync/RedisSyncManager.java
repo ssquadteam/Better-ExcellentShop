@@ -104,6 +104,160 @@ public class RedisSyncManager {
         return this.pool != null && this.active;
     }
 
+    private boolean isCacheEnabled() {
+        return isActive() && Config.REDIS_CACHE_ENABLED.get();
+    }
+
+    // =========================
+    // Key helpers
+    // =========================
+    private String priceKey(@NotNull String shopId, @NotNull String productId) {
+        return "exshop:price:" + shopId.toLowerCase() + ":" + productId.toLowerCase();
+    }
+
+    private String stockKey(@NotNull String shopId, @NotNull String productId, @NotNull String holder) {
+        return "exshop:stock:" + shopId.toLowerCase() + ":" + productId.toLowerCase() + ":" + holder.toLowerCase();
+    }
+
+    private void scanAndDelete(@NotNull String pattern) {
+        if (!isCacheEnabled()) return;
+        this.plugin.getFoliaScheduler().runAsync(() -> {
+            try (Jedis jedis = this.pool.getResource()) {
+                java.util.Set<String> keys = jedis.keys(pattern);
+                if (keys != null && !keys.isEmpty()) {
+                    jedis.del(keys.toArray(new String[0]));
+                }
+            } catch (Exception e) {
+                this.plugin.warn("Redis scanAndDelete failed: " + e.getMessage());
+            }
+        });
+    }
+
+    // =========================
+    // Cache API - Price
+    // =========================
+    public void cachePriceData(@NotNull PriceData data) {
+        if (!isCacheEnabled()) return;
+        String key = priceKey(data.getShopId(), data.getProductId());
+        int ttl = Math.max(0, Config.REDIS_CACHE_TTL_PRICE_SECONDS.get());
+        JsonObject d = new JsonObject();
+        d.addProperty("shopId", data.getShopId());
+        d.addProperty("productId", data.getProductId());
+        d.addProperty("latestBuyPrice", data.getLatestBuyPrice());
+        d.addProperty("latestSellPrice", data.getLatestSellPrice());
+        d.addProperty("latestUpdateDate", data.getLatestUpdateDate());
+        d.addProperty("expireDate", data.getExpireDate());
+        d.addProperty("purchases", data.getPurchases());
+        d.addProperty("sales", data.getSales());
+        String value = this.gson.toJson(d);
+
+        this.plugin.getFoliaScheduler().runAsync(() -> {
+            try (Jedis jedis = this.pool.getResource()) {
+                if (ttl > 0) jedis.setex(key, ttl, value); else jedis.set(key, value);
+            } catch (Exception e) {
+                this.plugin.warn("Redis cachePriceData failed: " + e.getMessage());
+            }
+        });
+    }
+
+    @NotNull
+    public java.util.Optional<PriceData> getCachedPriceData(@NotNull String shopId, @NotNull String productId) {
+        if (!isCacheEnabled()) return java.util.Optional.empty();
+        String key = priceKey(shopId, productId);
+        try (Jedis jedis = this.pool.getResource()) {
+            String raw = jedis.get(key);
+            if (raw == null) return java.util.Optional.empty();
+            JsonObject d = gson.fromJson(raw, JsonObject.class);
+            if (d == null) return java.util.Optional.empty();
+            PriceData data = new PriceData(
+                d.get("shopId").getAsString(),
+                d.get("productId").getAsString(),
+                d.get("latestBuyPrice").getAsDouble(),
+                d.get("latestSellPrice").getAsDouble(),
+                d.get("latestUpdateDate").getAsLong(),
+                d.get("expireDate").getAsLong(),
+                d.get("purchases").getAsInt(),
+                d.get("sales").getAsInt()
+            );
+            return java.util.Optional.of(data);
+        } catch (Exception e) {
+            this.plugin.warn("Redis getCachedPriceData failed: " + e.getMessage());
+            return java.util.Optional.empty();
+        }
+    }
+
+    public void evictPriceDataByShop(@NotNull String shopId) {
+        if (!isCacheEnabled()) return;
+        scanAndDelete("exshop:price:" + shopId.toLowerCase() + ":*");
+    }
+
+    public void evictPriceDataByProduct(@NotNull String shopId, @NotNull String productId) {
+        if (!isCacheEnabled()) return;
+        String key = priceKey(shopId, productId);
+        this.plugin.getFoliaScheduler().runAsync(() -> {
+            try (Jedis jedis = this.pool.getResource()) { jedis.del(key); } catch (Exception ignored) {}
+        });
+    }
+
+    // =========================
+    // Cache API - Stock
+    // =========================
+    public void cacheStockData(@NotNull StockData data) {
+        if (!isCacheEnabled()) return;
+        String key = stockKey(data.getShopId(), data.getProductId(), data.getHolder());
+        int ttl = Math.max(0, Config.REDIS_CACHE_TTL_STOCK_SECONDS.get());
+        JsonObject d = new JsonObject();
+        d.addProperty("shopId", data.getShopId());
+        d.addProperty("productId", data.getProductId());
+        d.addProperty("holder", data.getHolder());
+        d.addProperty("buyStock", data.getBuyStock());
+        d.addProperty("sellStock", data.getSellStock());
+        d.addProperty("restockDate", data.getRestockDate());
+        String value = this.gson.toJson(d);
+
+        this.plugin.getFoliaScheduler().runAsync(() -> {
+            try (Jedis jedis = this.pool.getResource()) {
+                if (ttl > 0) jedis.setex(key, ttl, value); else jedis.set(key, value);
+            } catch (Exception e) {
+                this.plugin.warn("Redis cacheStockData failed: " + e.getMessage());
+            }
+        });
+    }
+
+    @NotNull
+    public java.util.Optional<StockData> getCachedStockData(@NotNull String shopId, @NotNull String productId, @NotNull String holder) {
+        if (!isCacheEnabled()) return java.util.Optional.empty();
+        String key = stockKey(shopId, productId, holder);
+        try (Jedis jedis = this.pool.getResource()) {
+            String raw = jedis.get(key);
+            if (raw == null) return java.util.Optional.empty();
+            JsonObject d = gson.fromJson(raw, JsonObject.class);
+            if (d == null) return java.util.Optional.empty();
+            StockData data = new StockData(
+                d.get("shopId").getAsString(),
+                d.get("productId").getAsString(),
+                d.get("holder").getAsString(),
+                d.get("buyStock").getAsInt(),
+                d.get("sellStock").getAsInt(),
+                d.get("restockDate").getAsLong()
+            );
+            return java.util.Optional.of(data);
+        } catch (Exception e) {
+            this.plugin.warn("Redis getCachedStockData failed: " + e.getMessage());
+            return java.util.Optional.empty();
+        }
+    }
+
+    public void evictStockDataByShop(@NotNull String shopId) {
+        if (!isCacheEnabled()) return;
+        scanAndDelete("exshop:stock:" + shopId.toLowerCase() + ":*");
+    }
+
+    public void evictStockDataByProduct(@NotNull String shopId, @NotNull String productId) {
+        if (!isCacheEnabled()) return;
+        scanAndDelete("exshop:stock:" + shopId.toLowerCase() + ":" + productId.toLowerCase() + ":*");
+    }
+
     @NotNull
     public String getNodeId() { return this.nodeId; }
 
@@ -376,17 +530,20 @@ public class RedisSyncManager {
 
         PriceData data = new PriceData(shopId, productId, latestBuyPrice, latestSellPrice, latestUpdateDate, expireDate, purchases, sales);
         this.plugin.runNextTick(() -> this.plugin.getDataManager().applyExternalPriceData(data));
+        this.cachePriceData(data);
     }
 
     private void applyPriceDataDeleteByShop(@NotNull JsonObject d) {
         String shopId = d.get("shopId").getAsString();
         this.plugin.runNextTick(() -> this.plugin.getDataManager().applyExternalDeletePriceDataByShop(shopId));
+        this.evictPriceDataByShop(shopId);
     }
 
     private void applyPriceDataDeleteByProduct(@NotNull JsonObject d) {
         String shopId = d.get("shopId").getAsString();
         String productId = d.get("productId").getAsString();
         this.plugin.runNextTick(() -> this.plugin.getDataManager().applyExternalDeletePriceDataByProduct(shopId, productId));
+        this.evictPriceDataByProduct(shopId, productId);
     }
 
     private void applyStockDataUpsert(@NotNull JsonObject d) {
@@ -399,17 +556,20 @@ public class RedisSyncManager {
 
         StockData data = new StockData(shopId, productId, holder, buyStock, sellStock, restockDate);
         this.plugin.runNextTick(() -> this.plugin.getDataManager().applyExternalStockData(data));
+        this.cacheStockData(data);
     }
 
     private void applyStockDataDeleteByShop(@NotNull JsonObject d) {
         String shopId = d.get("shopId").getAsString();
         this.plugin.runNextTick(() -> this.plugin.getDataManager().applyExternalDeleteStockDataByShop(shopId));
+        this.evictStockDataByShop(shopId);
     }
 
     private void applyStockDataDeleteByProduct(@NotNull JsonObject d) {
         String shopId = d.get("shopId").getAsString();
         String productId = d.get("productId").getAsString();
         this.plugin.runNextTick(() -> this.plugin.getDataManager().applyExternalDeleteStockDataByProduct(shopId, productId));
+        this.evictStockDataByProduct(shopId, productId);
     }
 
     private void applyRotationDataUpsert(@NotNull JsonObject d) {

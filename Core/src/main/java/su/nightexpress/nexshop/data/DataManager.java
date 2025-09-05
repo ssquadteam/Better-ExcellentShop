@@ -171,7 +171,7 @@ public class DataManager extends AbstractManager<ShopPlugin> {
             .collect(java.util.stream.Collectors.toSet());
         if (toSave.isEmpty()) return;
         this.plugin.getDataHandler().updatePriceDatas(toSave);
-        this.plugin.getRedisSyncManager().ifPresent(sync -> toSave.forEach(sync::publishPriceData));
+        this.plugin.getRedisSyncManager().ifPresent(sync -> toSave.forEach(d -> { sync.publishPriceData(d); sync.cachePriceData(d); }));
     }
 
     public void saveScheduledStockDatas() {
@@ -181,7 +181,7 @@ public class DataManager extends AbstractManager<ShopPlugin> {
             .collect(java.util.stream.Collectors.toSet());
         if (toSave.isEmpty()) return;
         this.plugin.getDataHandler().updateStockDatas(toSave);
-        this.plugin.getRedisSyncManager().ifPresent(sync -> toSave.forEach(sync::publishStockData));
+        this.plugin.getRedisSyncManager().ifPresent(sync -> toSave.forEach(d -> { sync.publishStockData(d); sync.cacheStockData(d); }));
     }
 
     public void saveScheduledRotationDatas() {
@@ -221,6 +221,9 @@ public class DataManager extends AbstractManager<ShopPlugin> {
                 sync.publishRotationDataDeleteByShop(shopId);
                 sync.publishPriceDataDeleteByShop(shopId);
                 sync.publishStockDataDeleteByShop(shopId);
+                // Local cache eviction
+                sync.evictPriceDataByShop(shopId);
+                sync.evictStockDataByShop(shopId);
             });
         });
     }
@@ -291,13 +294,18 @@ public class DataManager extends AbstractManager<ShopPlugin> {
         PriceData data = this.getPriceData(product);
         if (data != null) return data;
 
-        //System.out.println("product.getId() = " + product.getId());
-        //new Throwable().printStackTrace();
+        // Try Redis cache first
+        this.plugin.getRedisSyncManager().flatMap(sync ->
+            sync.getCachedPriceData(product.getShop().getId(), product.getId())
+        ).ifPresent(this::loadPriceData);
+
+        data = this.getPriceData(product);
+        if (data != null) return data;
 
         PriceData fresh = PriceData.create(product);
         this.loadPriceData(fresh);
         this.plugin.runTaskAsync(task -> this.plugin.getDataHandler().insertPriceData(fresh));
-        this.plugin.getRedisSyncManager().ifPresent(sync -> sync.publishPriceData(fresh));
+        this.plugin.getRedisSyncManager().ifPresent(sync -> { sync.publishPriceData(fresh); sync.cachePriceData(fresh); });
         return fresh;
     }
 
@@ -312,7 +320,10 @@ public class DataManager extends AbstractManager<ShopPlugin> {
         this.plugin.runTaskAsync(task -> {
             this.plugin.getDataHandler().deletePriceData(product); // First remove from the database.
             this.priceDataMap.remove(ProductKey.global(product)); // Now clean up memory (so no duplicates can be created during the deletion process).
-            this.plugin.getRedisSyncManager().ifPresent(sync -> sync.publishPriceDataDeleteByProduct(product.getShop().getId(), product.getId()));
+            this.plugin.getRedisSyncManager().ifPresent(sync -> {
+                sync.publishPriceDataDeleteByProduct(product.getShop().getId(), product.getId());
+                sync.evictPriceDataByProduct(product.getShop().getId(), product.getId());
+            });
         });
     }
 
@@ -394,10 +405,25 @@ public class DataManager extends AbstractManager<ShopPlugin> {
             return data;
         }
 
+        // Try Redis cache first
+        String holder = playerId == null ? product.getShop().getId() : playerId.toString();
+        this.plugin.getRedisSyncManager().flatMap(sync ->
+            sync.getCachedStockData(product.getShop().getId(), product.getId(), holder)
+        ).ifPresent(this::loadStockData);
+
+        data = this.getStockData(product, playerId);
+        if (data != null) {
+            if (data.isRestockTime()) {
+                data.restock(values);
+                data.setSaveRequired(true);
+            }
+            return data;
+        }
+
         StockData fresh = StockData.create(product, values, playerId);
         this.loadStockData(fresh);
         this.plugin.runTaskAsync(task -> plugin.getDataHandler().insertStockData(fresh));
-        this.plugin.getRedisSyncManager().ifPresent(sync -> sync.publishStockData(fresh));
+        this.plugin.getRedisSyncManager().ifPresent(sync -> { sync.publishStockData(fresh); sync.cacheStockData(fresh); });
         return fresh;
     }
 
@@ -405,7 +431,7 @@ public class DataManager extends AbstractManager<ShopPlugin> {
         this.plugin.runTaskAsync(task -> {
             this.plugin.getDataHandler().deleteStockData(product);  // First remove from the database.
             this.stockDataMap.remove(ProductKey.global(product)); // Now clean up memory (so no duplicates can be created during the deletion process).
-            this.plugin.getRedisSyncManager().ifPresent(sync -> sync.publishStockDataDeleteByProduct(product.getShop().getId(), product.getId()));
+            this.plugin.getRedisSyncManager().ifPresent(sync -> { sync.publishStockDataDeleteByProduct(product.getShop().getId(), product.getId()); sync.evictStockDataByProduct(product.getShop().getId(), product.getId()); });
         });
     }
 
