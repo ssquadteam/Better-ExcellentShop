@@ -7,6 +7,7 @@ import su.nightexpress.economybridge.api.Currency;
 import su.nightexpress.nexshop.api.shop.product.typing.PhysicalTyping;
 
 import java.util.UUID;
+import java.util.Objects;
 import java.util.function.UnaryOperator;
 
 public abstract class AbstractListing {
@@ -98,5 +99,17 @@ public abstract class AbstractListing {
 
     public final long getDeleteDate() {
         return this.deletionDate;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || !(obj instanceof AbstractListing other)) return false;
+        return this.id.equals(other.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.id);
     }
 }

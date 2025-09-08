@@ -444,7 +444,11 @@ public class AuctionManager extends AbstractModule {
             this.database.addCompletedListing(completedListing);
             this.database.deleteListing(listing);
         });
-        this.plugin.getRedisSyncManager().ifPresent(sync -> sync.publishAuctionCompletedAdd(completedListing));
+        // Broadcast both deletion of active listing and addition of completed listing
+        this.plugin.getRedisSyncManager().ifPresent(sync -> {
+            sync.publishAuctionListingDelete(listing.getId());
+            sync.publishAuctionCompletedAdd(completedListing);
+        });
         AuctionLang.LISTING_BUY_SUCCESS_INFO.message().send(buyer, replacer -> replacer.replace(listing.replacePlaceholders()));
 
         // Notify the seller about the purchase.
@@ -493,6 +497,7 @@ public class AuctionManager extends AbstractModule {
         }
 
         this.plugin.runTaskAsync(task -> this.database.saveCompletedListings(listings));
+        // Broadcast claimed state updates cross-server
         this.plugin.getRedisSyncManager().ifPresent(sync -> listings.forEach(l -> sync.publishAuctionCompletedUpdate(l.getId(), l.isClaimed())));
     }
 

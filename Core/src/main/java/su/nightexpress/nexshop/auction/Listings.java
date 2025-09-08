@@ -42,8 +42,14 @@ public class Listings {
     }
 
     public void add(@NotNull ActiveListing listing) {
-        this.activeById.put(listing.getId(), listing);
-        this.activeByOwnerId.computeIfAbsent(listing.getOwner(), k -> new HashSet<>()).add(listing);
+        ActiveListing previous = this.activeById.put(listing.getId(), listing);
+        // Ensure owner set contains only the current instance for this id
+        Set<ActiveListing> ownerSet = this.activeByOwnerId.computeIfAbsent(listing.getOwner(), k -> new HashSet<>());
+        if (previous != null && previous != listing) {
+            ownerSet.remove(previous);
+        }
+        ownerSet.remove(listing); // safeguard against different instance with same id
+        ownerSet.add(listing);
     }
 
     public void remove(@NotNull ActiveListing listing) {
@@ -52,8 +58,13 @@ public class Listings {
     }
 
     public void addCompleted(@NotNull CompletedListing listing) {
-        this.completedById.put(listing.getId(), listing);
-        this.completedByOwnerId.computeIfAbsent(listing.getOwner(), k -> new HashSet<>()).add(listing);
+        CompletedListing previous = this.completedById.put(listing.getId(), listing);
+        Set<CompletedListing> ownerSet = this.completedByOwnerId.computeIfAbsent(listing.getOwner(), k -> new HashSet<>());
+        if (previous != null && previous != listing) {
+            ownerSet.remove(previous);
+        }
+        ownerSet.remove(listing);
+        ownerSet.add(listing);
     }
 
     public void removeCompleted(@NotNull CompletedListing listing) {
