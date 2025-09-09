@@ -38,6 +38,7 @@ import java.util.Set;
 public class ShopManager extends AbstractManager<ShopPlugin> {
 
     private final Map<String, CartMenu> cartMenuMap;
+    private final AsyncShopProcessor asyncProcessor;
 
     private ConfirmMenu confirmMenu;
     private PurchaseOptionMenu purchaseOptionMenu;
@@ -45,6 +46,7 @@ public class ShopManager extends AbstractManager<ShopPlugin> {
     public ShopManager(@NotNull ShopPlugin plugin) {
         super(plugin);
         this.cartMenuMap = new HashMap<>();
+        this.asyncProcessor = new AsyncShopProcessor(plugin);
     }
 
     @Override
@@ -52,7 +54,7 @@ public class ShopManager extends AbstractManager<ShopPlugin> {
         this.loadUI();
         this.loadCartUIs();
 
-        this.addTask(this::updateShops, Config.SHOP_UPDATE_INTERVAL.get());
+        this.startAsyncShopUpdater();
 
         this.plugin.getFoliaScheduler().runLater(this::printBadProducts, 100L);
     }
@@ -119,10 +121,72 @@ public class ShopManager extends AbstractManager<ShopPlugin> {
         return shops;
     }
 
-    public void updateShops() {
+    private void startAsyncShopUpdater() {
+        this.plugin.getFoliaScheduler().runTimerAsync(() -> {
+            try {
+                this.processShopsAsync();
+            } catch (Exception e) {
+                this.plugin.error("Error processing shops async: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }, 0L, Config.SHOP_UPDATE_INTERVAL.get());
+    }
+
+    private void processShopsAsync() {
         if (!this.plugin.getDataManager().isLoaded()) return;
 
-        this.getShops().forEach(Shop::update);
+        AsyncShopUpdate update = this.asyncProcessor.processShopsAsync();
+
+        if (update.hasUpdates()) {
+            this.plugin.getFoliaScheduler().runAsync(() -> {
+                try {
+                    update.applyDatabaseOperations();
+                    this.saveBatchedData(update);
+                } catch (Exception e) {
+                    this.plugin.error("Error applying shop database operations: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            });
+
+            this.plugin.getFoliaScheduler().runNextTick(() -> {
+                try {
+                    update.applyToMainThread();
+                } catch (Exception e) {
+                    this.plugin.error("Error applying shop main thread operations: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            });
+        }
+    }
+
+    private void saveBatchedData(@NotNull AsyncShopUpdate update) {
+        if (!update.getPriceDataToSave().isEmpty()) {
+            this.plugin.getDataHandler().updatePriceDatas(update.getPriceDataToSave());
+
+            this.plugin.getRedisSyncManager().ifPresent(sync -> {
+                update.getPriceDataToSave().forEach(data -> {
+                    sync.publishPriceData(data);
+                    sync.cachePriceData(data);
+                    data.setSaveRequired(false);
+                });
+            });
+        }
+
+        if (!update.getStockDataToSave().isEmpty()) {
+            this.plugin.getDataHandler().updateStockDatas(update.getStockDataToSave());
+
+            this.plugin.getRedisSyncManager().ifPresent(sync -> {
+                update.getStockDataToSave().forEach(data -> {
+                    sync.publishStockData(data);
+                    sync.cacheStockData(data);
+                    data.setSaveRequired(false);
+                });
+            });
+        }
+    }
+
+    public void updateShops() {
+        this.processShopsAsync();
     }
 
     private void printBadProducts() {

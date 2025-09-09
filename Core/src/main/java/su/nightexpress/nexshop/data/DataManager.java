@@ -170,8 +170,18 @@ public class DataManager extends AbstractManager<ShopPlugin> {
             .peek(d -> d.setSaveRequired(false))
             .collect(java.util.stream.Collectors.toSet());
         if (toSave.isEmpty()) return;
-        this.plugin.getDataHandler().updatePriceDatas(toSave);
-        this.plugin.getRedisSyncManager().ifPresent(sync -> toSave.forEach(d -> { sync.publishPriceData(d); sync.cachePriceData(d); }));
+
+        this.plugin.getFoliaScheduler().runAsync(() -> {
+            try {
+                this.plugin.getDataHandler().updatePriceDatas(toSave);
+                this.plugin.getRedisSyncManager().ifPresent(sync -> toSave.forEach(d -> {
+                    sync.publishPriceData(d);
+                    sync.cachePriceData(d);
+                }));
+            } catch (Exception e) {
+                this.plugin.error("Error saving scheduled price data: " + e.getMessage());
+            }
+        });
     }
 
     public void saveScheduledStockDatas() {
@@ -180,8 +190,18 @@ public class DataManager extends AbstractManager<ShopPlugin> {
             .peek(d -> d.setSaveRequired(false))
             .collect(java.util.stream.Collectors.toSet());
         if (toSave.isEmpty()) return;
-        this.plugin.getDataHandler().updateStockDatas(toSave);
-        this.plugin.getRedisSyncManager().ifPresent(sync -> toSave.forEach(d -> { sync.publishStockData(d); sync.cacheStockData(d); }));
+
+        this.plugin.getFoliaScheduler().runAsync(() -> {
+            try {
+                this.plugin.getDataHandler().updateStockDatas(toSave);
+                this.plugin.getRedisSyncManager().ifPresent(sync -> toSave.forEach(d -> {
+                    sync.publishStockData(d);
+                    sync.cacheStockData(d);
+                }));
+            } catch (Exception e) {
+                this.plugin.error("Error saving scheduled stock data: " + e.getMessage());
+            }
+        });
     }
 
     public void saveScheduledRotationDatas() {
