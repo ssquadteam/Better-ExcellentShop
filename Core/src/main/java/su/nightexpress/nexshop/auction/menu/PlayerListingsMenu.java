@@ -53,7 +53,7 @@ public class PlayerListingsMenu extends AbstractAuctionMenu<ActiveListing>  {
     @NotNull
     protected MenuOptions createDefaultOptions() {
         MenuOptions options = new MenuOptions(BLACK.enclose("My Listings"), MenuSize.CHEST_54);
-        options.setAutoRefresh(1);
+        options.setAutoRefresh(10);
         return options;
     }
 

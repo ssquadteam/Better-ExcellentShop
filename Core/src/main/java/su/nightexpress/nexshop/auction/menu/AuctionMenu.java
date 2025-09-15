@@ -295,7 +295,7 @@ public class AuctionMenu extends AbstractAuctionMenu<ActiveListing> {
     @NotNull
     protected MenuOptions createDefaultOptions() {
         MenuOptions options = new MenuOptions(BLACK.enclose("Auction House"), MenuSize.CHEST_54);
-        options.setAutoRefresh(1);
+        options.setAutoRefresh(10);
         return options;
     }
 
@@ -308,8 +308,7 @@ public class AuctionMenu extends AbstractAuctionMenu<ActiveListing> {
         //ItemStack backGround = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         //list.add(new MenuItem(backGround).setSlots(IntStream.range(36, 54).toArray()).setPriority(0));
 
-        // TODO
-        /*ItemStack prevPage = ItemUtil.getSkinHead(SKIN_ARROW_LEFT);
+        ItemStack prevPage = ItemUtil.getSkinHead(SKIN_ARROW_LEFT);
         ItemUtil.editMeta(prevPage, meta -> {
             meta.setDisplayName(Lang.EDITOR_ITEM_PREVIOUS_PAGE.getDefaultName());
         });
@@ -319,7 +318,7 @@ public class AuctionMenu extends AbstractAuctionMenu<ActiveListing> {
         ItemUtil.editMeta(nextPage, meta -> {
             meta.setDisplayName(Lang.EDITOR_ITEM_NEXT_PAGE.getDefaultName());
         });
-        list.add(new MenuItem(nextPage).setSlots(44).setPriority(10).setHandler(ItemHandler.forNextPage(this)));*/
+        list.add(new MenuItem(nextPage).setSlots(44).setPriority(10).setHandler(ItemHandler.forNextPage(this)));
 
 
 

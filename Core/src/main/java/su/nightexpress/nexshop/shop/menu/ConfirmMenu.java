@@ -24,7 +24,7 @@ public class ConfirmMenu extends LinkedMenu<ShopPlugin, Confirmation> implements
     public static final String FILE_NAME = "confirmation.yml";
 
     public ConfirmMenu(@NotNull ShopPlugin plugin) {
-        super(plugin, MenuType.HOPPER, BLACK.enclose("Are you sure?"));
+        super(plugin, MenuType.GENERIC_9X1, BLACK.enclose("Are you sure?"));
 
         this.load(FileConfig.loadOrExtract(plugin, Config.DIR_MENU, FILE_NAME));
     }
@@ -45,17 +45,34 @@ public class ConfirmMenu extends LinkedMenu<ShopPlugin, Confirmation> implements
             .setDisplayName(LIGHT_RED.enclose(BOLD.enclose("Cancel")))
             .toMenuItem()
             .setPriority(10)
-            .setSlots(0)
+            .setSlots(2)
             .setHandler(new ItemHandler("decline", (viewer, event) -> {
                 this.getLink(viewer).returnBack(viewer, event);
             }))
         );
 
+        loader.addDefaultItem(NightItem.fromAir().toMenuItem()
+            .setPriority(5)
+            .setSlots(4)
+            .setHandler(new ItemHandler("noop", (viewer, event) -> {}))
+            .setOptions(options -> options.addDisplayModifier((viewer, item) -> {
+                Confirmation confirmation = this.getLink(viewer);
+                if (confirmation != null && confirmation.getIcon() != null) {
+                    // Copy the icon fields to avoid inventory mutation issues
+                    org.bukkit.inventory.ItemStack icon = confirmation.getIcon();
+                    item.setType(icon.getType());
+                    item.setAmount(icon.getAmount());
+                    item.setItemMeta(icon.getItemMeta());
+                }
+            }))
+        );
+
+        // Accept on the right
         loader.addDefaultItem(NightItem.asCustomHead(SKIN_CHECK_MARK)
             .setDisplayName(LIGHT_GREEN.enclose(BOLD.enclose("Accept")))
             .toMenuItem()
             .setPriority(10)
-            .setSlots(4)
+            .setSlots(6)
             .setHandler(new ItemHandler("accept", (viewer, event) -> {
                 Confirmation confirmation = this.getLink(viewer);
                 confirmation.onAccept(viewer, event);

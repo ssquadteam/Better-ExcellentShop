@@ -206,19 +206,25 @@ public class AuctionManager extends AbstractModule {
     }
 
     public void openPurchaseConfirmation(@NotNull Player player, @NotNull ActiveListing listing) {
-        UIUtils.openConfirmation(player, Confirmation.builder()
-            .onAccept((viewer, event) -> {
-                this.buy(player, listing);
+        this.plugin.getShopManager().openConfirmation(player, new su.nightexpress.nexshop.shop.menu.Confirmation() {
+            @Override
+            public void onAccept(@NotNull su.nightexpress.nightcore.ui.menu.MenuViewer viewer, @NotNull org.bukkit.event.inventory.InventoryClickEvent event) {
+                buy(player, listing);
                 if (!AuctionConfig.MENU_REOPEN_ON_PURCHASE.get()) {
-                    this.plugin.runAtEntity(player, player::closeInventory);
+                    plugin.runAtEntity(player, player::closeInventory);
                 }
-            })
-            .onReturn((viewer, event) -> {
-                this.plugin.runAtEntity(viewer.getPlayer(), () -> this.openAuction(viewer.getPlayer()));
-            })
-            .setIcon(NightItem.fromItemStack(listing.getItemStack()).localized(AuctionLang.UI_BUY_CONFIRM).replacement(replacer -> replacer.replace(listing.replacePlaceholders())))
-            .returnOnAccept(AuctionConfig.MENU_REOPEN_ON_PURCHASE.get())
-            .build());
+            }
+
+            @Override
+            public void returnBack(@NotNull su.nightexpress.nightcore.ui.menu.MenuViewer viewer, @NotNull org.bukkit.event.inventory.InventoryClickEvent event) {
+                plugin.runAtEntity(viewer.getPlayer(), () -> openAuction(viewer.getPlayer()));
+            }
+
+            @Override
+            public org.bukkit.inventory.ItemStack getIcon() {
+                return NightItem.fromItemStack(listing.getItemStack()).localized(AuctionLang.UI_BUY_CONFIRM).replacement(replacer -> replacer.replace(listing.replacePlaceholders())).getItemStack();
+            }
+        });
     }
 
     private boolean openAuctionMenu(@NotNull Player player, @NotNull UUID target, @NotNull AbstractAuctionMenu<?> menu, boolean force) {
