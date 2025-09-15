@@ -50,7 +50,6 @@ public class UnclaimedListingsMenu extends AbstractAuctionMenu<CompletedListing>
     @NotNull
     protected MenuOptions createDefaultOptions() {
         MenuOptions options = new MenuOptions(BLACK.enclose("Unclaimed Listings"), MenuSize.CHEST_54);
-        options.setAutoRefresh(1);
         return options;
     }
 
@@ -59,24 +58,23 @@ public class UnclaimedListingsMenu extends AbstractAuctionMenu<CompletedListing>
     protected List<MenuItem> createDefaultItems() {
         List<MenuItem> list = new ArrayList<>();
 
-        // TODO
-        /*ItemStack backItem = ItemUtil.getSkinHead(SKIN_ARROW_DOWN);
+        ItemStack backItem = new ItemStack(org.bukkit.Material.ARROW);
         ItemUtil.editMeta(backItem, meta -> {
             meta.setDisplayName(Lang.EDITOR_ITEM_RETURN.getDefaultName());
         });
         list.add(new MenuItem(backItem).setSlots(49).setPriority(10).setHandler(this.returnHandler));
 
-        ItemStack prevPage = ItemUtil.getSkinHead(SKIN_ARROW_LEFT);
+        ItemStack prevPage = new ItemStack(org.bukkit.Material.ARROW);
         ItemUtil.editMeta(prevPage, meta -> {
             meta.setDisplayName(Lang.EDITOR_ITEM_PREVIOUS_PAGE.getDefaultName());
         });
         list.add(new MenuItem(prevPage).setSlots(45).setPriority(10).setHandler(ItemHandler.forPreviousPage(this)));
 
-        ItemStack nextPage = ItemUtil.getSkinHead(SKIN_ARROW_RIGHT);
+        ItemStack nextPage = new ItemStack(org.bukkit.Material.ARROW);
         ItemUtil.editMeta(nextPage, meta -> {
             meta.setDisplayName(Lang.EDITOR_ITEM_NEXT_PAGE.getDefaultName());
         });
-        list.add(new MenuItem(nextPage).setSlots(53).setPriority(10).setHandler(ItemHandler.forNextPage(this)));*/
+        list.add(new MenuItem(nextPage).setSlots(53).setPriority(10).setHandler(ItemHandler.forNextPage(this)));
 
         return list;
     }

@@ -61,7 +61,6 @@ public class ExpiredListingsMenu extends AbstractAuctionMenu<ActiveListing> {
     @NotNull
     protected MenuOptions createDefaultOptions() {
         MenuOptions options = new MenuOptions(BLACK.enclose("Expired Listings"), MenuSize.CHEST_54);
-        options.setAutoRefresh(1);
         return options;
     }
 
@@ -70,30 +69,29 @@ public class ExpiredListingsMenu extends AbstractAuctionMenu<ActiveListing> {
     protected List<MenuItem> createDefaultItems() {
         List<MenuItem> list = new ArrayList<>();
 
-        // TODO
-        /*ItemStack takeAllItem = new ItemStack(Material.HOPPER);
+        ItemStack takeAllItem = new ItemStack(Material.HOPPER);
         ItemUtil.editMeta(takeAllItem, meta -> {
             meta.setDisplayName(LIGHT_YELLOW.enclose(BOLD.enclose("Take All")));
         });
         list.add(new MenuItem(takeAllItem).setSlots(51).setPriority(10).setHandler(this.takeAllHandler));
 
-        ItemStack backItem = ItemUtil.getSkinHead(SKIN_ARROW_DOWN);
+        ItemStack backItem = new ItemStack(Material.ARROW);
         ItemUtil.editMeta(backItem, meta -> {
             meta.setDisplayName(Lang.EDITOR_ITEM_RETURN.getDefaultName());
         });
         list.add(new MenuItem(backItem).setSlots(49).setPriority(10).setHandler(this.returnHandler));
 
-        ItemStack prevPage = ItemUtil.getSkinHead(SKIN_ARROW_LEFT);
+        ItemStack prevPage = new ItemStack(Material.ARROW);
         ItemUtil.editMeta(prevPage, meta -> {
             meta.setDisplayName(Lang.EDITOR_ITEM_PREVIOUS_PAGE.getDefaultName());
         });
         list.add(new MenuItem(prevPage).setSlots(45).setPriority(10).setHandler(ItemHandler.forPreviousPage(this)));
 
-        ItemStack nextPage = ItemUtil.getSkinHead(SKIN_ARROW_RIGHT);
+        ItemStack nextPage = new ItemStack(Material.ARROW);
         ItemUtil.editMeta(nextPage, meta -> {
             meta.setDisplayName(Lang.EDITOR_ITEM_NEXT_PAGE.getDefaultName());
         });
-        list.add(new MenuItem(nextPage).setSlots(53).setPriority(10).setHandler(ItemHandler.forNextPage(this)));*/
+        list.add(new MenuItem(nextPage).setSlots(53).setPriority(10).setHandler(ItemHandler.forNextPage(this)));
 
         return list;
     }
