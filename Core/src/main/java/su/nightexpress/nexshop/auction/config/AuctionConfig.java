@@ -204,7 +204,7 @@ public class AuctionConfig {
     );
 
     public static final ConfigValue<Integer> MENU_AUTO_REFRESH = ConfigValue.create("Menu.AutoRefresh_Seconds",
-        1,
+        0,
         "Sets auto-refresh interval in seconds for Auction menus.",
         "Set to 0 to disable live refreshing and rely on manual updates."
     );
