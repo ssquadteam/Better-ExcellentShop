@@ -50,7 +50,7 @@ public class UnclaimedListingsMenu extends AbstractAuctionMenu<CompletedListing>
     @NotNull
     protected MenuOptions createDefaultOptions() {
         MenuOptions options = new MenuOptions(BLACK.enclose("Unclaimed Listings"), MenuSize.CHEST_54);
-        options.setAutoRefresh(10);
+        options.setAutoRefresh(1);
         return options;
     }
 

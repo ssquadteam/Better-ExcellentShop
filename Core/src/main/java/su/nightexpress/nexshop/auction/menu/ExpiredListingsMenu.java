@@ -61,7 +61,7 @@ public class ExpiredListingsMenu extends AbstractAuctionMenu<ActiveListing> {
     @NotNull
     protected MenuOptions createDefaultOptions() {
         MenuOptions options = new MenuOptions(BLACK.enclose("Expired Listings"), MenuSize.CHEST_54);
-        options.setAutoRefresh(10);
+        options.setAutoRefresh(1);
         return options;
     }
 

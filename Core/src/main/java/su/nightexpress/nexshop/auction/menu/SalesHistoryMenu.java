@@ -43,9 +43,7 @@ public class SalesHistoryMenu extends AbstractAuctionMenu<CompletedListing> {
     @Override
     @NotNull
     protected MenuOptions createDefaultOptions() {
-        MenuOptions options = new MenuOptions(BLACK.enclose("Sales History"), MenuSize.CHEST_54);
-        options.setAutoRefresh(10);
-        return options;
+        return new MenuOptions(BLACK.enclose("Sales History"), MenuSize.CHEST_54);
     }
 
     @Override
