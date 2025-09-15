@@ -17,6 +17,7 @@ import su.nightexpress.nightcore.menu.api.AutoFill;
 import su.nightexpress.nightcore.menu.item.ItemHandler;
 import su.nightexpress.nightcore.menu.item.MenuItem;
 import su.nightexpress.nightcore.util.ItemUtil;
+import su.nightexpress.nightcore.util.bukkit.NightItem;
 import su.nightexpress.nightcore.util.Lists;
 
 import java.util.ArrayList;
@@ -61,6 +62,8 @@ public class ExpiredListingsMenu extends AbstractAuctionMenu<ActiveListing> {
     @NotNull
     protected MenuOptions createDefaultOptions() {
         MenuOptions options = new MenuOptions(BLACK.enclose("Expired Listings"), MenuSize.CHEST_54);
+        int interval = su.nightexpress.nexshop.auction.config.AuctionConfig.MENU_AUTO_REFRESH.get();
+        if (interval > 0) options.setAutoRefresh(interval);
         return options;
     }
 
@@ -75,22 +78,13 @@ public class ExpiredListingsMenu extends AbstractAuctionMenu<ActiveListing> {
         });
         list.add(new MenuItem(takeAllItem).setSlots(51).setPriority(10).setHandler(this.takeAllHandler));
 
-        ItemStack backItem = new ItemStack(Material.ARROW);
-        ItemUtil.editMeta(backItem, meta -> {
-            meta.setDisplayName(Lang.EDITOR_ITEM_RETURN.getDefaultName());
-        });
+        ItemStack backItem = NightItem.fromType(Material.ARROW).localized(Lang.EDITOR_ITEM_RETURN).getItemStack();
         list.add(new MenuItem(backItem).setSlots(49).setPriority(10).setHandler(this.returnHandler));
 
-        ItemStack prevPage = new ItemStack(Material.ARROW);
-        ItemUtil.editMeta(prevPage, meta -> {
-            meta.setDisplayName(Lang.EDITOR_ITEM_PREVIOUS_PAGE.getDefaultName());
-        });
+        ItemStack prevPage = NightItem.fromType(Material.ARROW).localized(Lang.EDITOR_ITEM_PREVIOUS_PAGE).getItemStack();
         list.add(new MenuItem(prevPage).setSlots(45).setPriority(10).setHandler(ItemHandler.forPreviousPage(this)));
 
-        ItemStack nextPage = new ItemStack(Material.ARROW);
-        ItemUtil.editMeta(nextPage, meta -> {
-            meta.setDisplayName(Lang.EDITOR_ITEM_NEXT_PAGE.getDefaultName());
-        });
+        ItemStack nextPage = NightItem.fromType(Material.ARROW).localized(Lang.EDITOR_ITEM_NEXT_PAGE).getItemStack();
         list.add(new MenuItem(nextPage).setSlots(53).setPriority(10).setHandler(ItemHandler.forNextPage(this)));
 
         return list;

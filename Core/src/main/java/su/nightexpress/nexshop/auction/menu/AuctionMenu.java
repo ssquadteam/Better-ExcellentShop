@@ -170,6 +170,12 @@ public class AuctionMenu extends AbstractAuctionMenu<ActiveListing> {
                 });
             }
         });
+
+        ItemStack ensurePrev = NightItem.fromType(Material.ARROW).localized(Lang.EDITOR_ITEM_PREVIOUS_PAGE).getItemStack();
+        this.getItems().add(new MenuItem(ensurePrev).setSlots(36).setPriority(100).setHandler(ItemHandler.forPreviousPage(this)));
+
+        ItemStack ensureNext = NightItem.fromType(Material.ARROW).localized(Lang.EDITOR_ITEM_NEXT_PAGE).getItemStack();
+        this.getItems().add(new MenuItem(ensureNext).setSlots(44).setPriority(100).setHandler(ItemHandler.forNextPage(this)));
     }
 
     public boolean isContainer(@NotNull ActiveListing listing) {
@@ -295,6 +301,8 @@ public class AuctionMenu extends AbstractAuctionMenu<ActiveListing> {
     @NotNull
     protected MenuOptions createDefaultOptions() {
         MenuOptions options = new MenuOptions(BLACK.enclose("Auction House"), MenuSize.CHEST_54);
+        int interval = AuctionConfig.MENU_AUTO_REFRESH.get();
+        if (interval > 0) options.setAutoRefresh(interval);
         return options;
     }
 
@@ -308,16 +316,10 @@ public class AuctionMenu extends AbstractAuctionMenu<ActiveListing> {
         //list.add(new MenuItem(backGround).setSlots(IntStream.range(36, 54).toArray()).setPriority(0));
 
         // TODO
-        ItemStack prevPage = new ItemStack(Material.ARROW);
-        ItemUtil.editMeta(prevPage, meta -> {
-            meta.setDisplayName(Lang.EDITOR_ITEM_PREVIOUS_PAGE.getDefaultName());
-        });
+        ItemStack prevPage = NightItem.fromType(Material.ARROW).localized(Lang.EDITOR_ITEM_PREVIOUS_PAGE).getItemStack();
         list.add(new MenuItem(prevPage).setSlots(36).setPriority(10).setHandler(ItemHandler.forPreviousPage(this)));
 
-        ItemStack nextPage = new ItemStack(Material.ARROW);
-        ItemUtil.editMeta(nextPage, meta -> {
-            meta.setDisplayName(Lang.EDITOR_ITEM_NEXT_PAGE.getDefaultName());
-        });
+        ItemStack nextPage = NightItem.fromType(Material.ARROW).localized(Lang.EDITOR_ITEM_NEXT_PAGE).getItemStack();
         list.add(new MenuItem(nextPage).setSlots(44).setPriority(10).setHandler(ItemHandler.forNextPage(this)));
 
 

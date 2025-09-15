@@ -88,6 +88,18 @@ public final class Lang implements LangContainer {
         .name("< Invalid Item> ")
         .appendInfo("Item tag/ID is broken", "or invalid.").build();
 
+    public static final IconLocale EDITOR_ITEM_RETURN = LangEntry.iconBuilder("Editor.Item.Return")
+        .name(SOFT_YELLOW.wrap(BOLD.wrap("Back")))
+        .build();
+
+    public static final IconLocale EDITOR_ITEM_PREVIOUS_PAGE = LangEntry.iconBuilder("Editor.Item.PreviousPage")
+        .name(SOFT_YELLOW.wrap(BOLD.wrap("Previous Page")))
+        .build();
+
+    public static final IconLocale EDITOR_ITEM_NEXT_PAGE = LangEntry.iconBuilder("Editor.Item.NextPage")
+        .name(SOFT_YELLOW.wrap(BOLD.wrap("Next Page")))
+        .build();
+
     @Deprecated public static final TextLocale EDITOR_GENERIC_ENTER_NAME = LangEntry.builder("Editor.Generic.Enter.Name").text(GRAY.wrap("Enter " + GREEN.wrap("[Name]")));
     @Deprecated public static final TextLocale EDITOR_GENERIC_ENTER_AMOUNT = LangEntry.builder("Editor.Generic.Enter.Amount").text(GRAY.wrap("Enter " + GREEN.wrap("[Amount]")));
     @Deprecated public static final TextLocale EDITOR_GENERIC_ENTER_VALUE = LangEntry.builder("Editor.Generic.Enter.Value").text(GRAY.wrap("Enter " + GREEN.wrap("[Value]")));
