@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import su.nightexpress.nexshop.ShopPlugin;
 import su.nightexpress.nexshop.auction.AuctionManager;
 import su.nightexpress.nexshop.auction.AuctionUtils;
+import su.nightexpress.nexshop.auction.config.AuctionConfig;
 import su.nightexpress.nexshop.auction.listing.AbstractListing;
 import su.nightexpress.nexshop.config.Config;
 import su.nightexpress.nightcore.config.FileConfig;
@@ -91,6 +92,8 @@ public abstract class AbstractAuctionMenu<A extends AbstractListing> extends Con
 
     @Override
     public void onPrepare(@NotNull MenuViewer viewer, @NotNull MenuOptions options) {
+        int intervalSeconds = AuctionConfig.MENU_AUTO_REFRESH.get();
+        options.setAutoRefresh(Math.max(0, intervalSeconds));
         this.autoFill(viewer);
     }
 
