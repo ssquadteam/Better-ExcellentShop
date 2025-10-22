@@ -263,7 +263,7 @@ public class ChestShopModule extends AbstractModule implements ShopModule {
     private void loadShop(@NotNull File file) {
         String id = FileConfig.getName(file);
 
-        ChestShop shop = new ChestShop(this.plugin, this, file, id);
+        ChestShop shop = new ChestShop(this.plugin, this, file.toPath(), id);
         if (!shop.load()) {
             this.error("Invalid configuration for the '" + id + "' shop. Removing now...");
             file.delete();
@@ -565,7 +565,7 @@ public class ChestShopModule extends AbstractModule implements ShopModule {
         }
 
         shop.setName(name);
-        shop.setSaveRequired(true);
+        shop.markDirty();
         return true;
     }
 
@@ -769,7 +769,7 @@ public class ChestShopModule extends AbstractModule implements ShopModule {
         }
 
         consumer.accept(shop);
-        shop.setSaveRequired(true);
+        shop.markDirty();
 
         this.lookup.put(shop);
         this.activateShop(shop, world);
@@ -816,7 +816,7 @@ public class ChestShopModule extends AbstractModule implements ShopModule {
         EconomyBridge.deposit(shop.getOwnerId(), currencyId, price);
         shop.setRentedBy(player);
         shop.extendRent();
-        shop.setSaveRequired(true);
+        shop.markDirty();
 
         this.getPrefixed(isExtend ? ChestLang.RENT_EXTEND_SUCCESS : ChestLang.RENT_RENT_SUCCESS).send(player, replacer -> replacer
             .replace(Placeholders.GENERIC_TIME, TimeFormats.toLiteral(settings.getDurationMillis()))
@@ -838,7 +838,7 @@ public class ChestShopModule extends AbstractModule implements ShopModule {
         // TODO Notify renter
 
         shop.cancelRent();
-        shop.setSaveRequired(true);
+        shop.markDirty();
         return true;
     }
 
@@ -978,7 +978,7 @@ public class ChestShopModule extends AbstractModule implements ShopModule {
 
         product.storeStock(TradeType.BUY, units, null);
         product.take(player, units);
-        shop.setSaveRequired(true);
+        shop.markDirty();
 
         this.getPrefixed(ChestLang.STORAGE_DEPOSIT_SUCCESS).send(player, replacer -> replacer
             .replace(Placeholders.GENERIC_AMOUNT, NumberUtil.format(units))
@@ -1005,7 +1005,7 @@ public class ChestShopModule extends AbstractModule implements ShopModule {
 
         product.delivery(player, maxUnits);
         product.consumeStock(TradeType.BUY, maxUnits, null);
-        shop.setSaveRequired(true);
+        shop.markDirty();
 
         this.getPrefixed(ChestLang.STORAGE_WITHDRAW_SUCCESS).send(player, replacer -> replacer
             .replace(Placeholders.GENERIC_AMOUNT, NumberUtil.format(maxUnits))

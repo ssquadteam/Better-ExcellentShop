@@ -11,11 +11,18 @@ import su.nightexpress.nexshop.config.Config;
 import su.nightexpress.nexshop.config.Lang;
 import su.nightexpress.nexshop.config.Perms;
 import su.nightexpress.nexshop.util.ShopUtils;
+<<<<<<< HEAD
 import su.nightexpress.nightcore.command.experimental.CommandContext;
 import su.nightexpress.nightcore.command.experimental.RootCommand;
 import su.nightexpress.nightcore.command.experimental.ServerCommand;
 import su.nightexpress.nightcore.command.experimental.argument.ParsedArguments;
 import su.nightexpress.nightcore.command.experimental.builder.ChainedNodeBuilder;
+=======
+import su.nightexpress.nightcore.bridge.currency.Currency;
+import su.nightexpress.nightcore.bridge.item.ItemAdapter;
+import su.nightexpress.nightcore.commands.builder.HubNodeBuilder;
+import su.nightexpress.nightcore.commands.command.NightCommand;
+>>>>>>> 23ae6d0 (v4.21.0)
 import su.nightexpress.nightcore.config.FileConfig;
 import su.nightexpress.nightcore.language.entry.LangText;
 import su.nightexpress.nightcore.locale.entry.MessageLocale;
@@ -36,7 +43,7 @@ public abstract class AbstractModule extends AbstractManager<ShopPlugin> impleme
     private final String   name;
     private final ModuleConfig moduleConfig;
 
-    private ServerCommand moduleCommand;
+    private NightCommand moduleCommand;
 
     public AbstractModule(@NotNull ShopPlugin plugin, @NotNull String id, @NotNull ModuleConfig config) {
         super(plugin);
@@ -64,7 +71,11 @@ public abstract class AbstractModule extends AbstractManager<ShopPlugin> impleme
 
         this.loadModule(config);
 
+<<<<<<< HEAD
         this.moduleCommand = RootCommand.chained(this.plugin, this.moduleConfig.getCommandAliases(), builder -> {
+=======
+        this.moduleCommand = NightCommand.hub(this.plugin, this.settings.getCommandAliases(), builder -> {
+>>>>>>> 23ae6d0 (v4.21.0)
             builder.localized(this.getName());
             builder.addDirect("reload", child -> child
                 .permission(Perms.COMMAND_RELOAD)
@@ -73,7 +84,7 @@ public abstract class AbstractModule extends AbstractManager<ShopPlugin> impleme
             );
             this.loadCommands(builder);
         });
-        this.plugin.getCommandManager().registerCommand(this.moduleCommand);
+        this.moduleCommand.register();
 
         config.saveChanges();
     }
@@ -82,12 +93,15 @@ public abstract class AbstractModule extends AbstractManager<ShopPlugin> impleme
     protected final void onShutdown() {
         this.disableModule();
 
-        this.plugin.getCommandManager().unregisterCommand(this.moduleCommand);
+        if (this.moduleCommand != null) {
+            this.moduleCommand.unregister();
+            this.moduleCommand = null;
+        }
     }
 
     protected abstract void loadModule(@NotNull FileConfig config);
 
-    protected abstract void loadCommands(@NotNull ChainedNodeBuilder builder);
+    protected abstract void loadCommands(@NotNull HubNodeBuilder builder);
 
     protected abstract void disableModule();
 

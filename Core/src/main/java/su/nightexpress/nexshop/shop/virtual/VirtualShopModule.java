@@ -19,9 +19,8 @@ import su.nightexpress.nexshop.module.AbstractModule;
 import su.nightexpress.nexshop.module.ModuleConfig;
 import su.nightexpress.nexshop.shop.virtual.command.impl.VirtualCommands;
 import su.nightexpress.nexshop.shop.virtual.config.VirtualConfig;
-import su.nightexpress.nexshop.shop.virtual.dialog.VirtualDialogs;
-import su.nightexpress.nexshop.shop.virtual.lang.VirtualLang;
 import su.nightexpress.nexshop.shop.virtual.config.VirtualPerms;
+import su.nightexpress.nexshop.shop.virtual.dialog.VirtualDialogs;
 import su.nightexpress.nexshop.shop.virtual.editor.DiscountListEditor;
 import su.nightexpress.nexshop.shop.virtual.editor.DiscountMainEditor;
 import su.nightexpress.nexshop.shop.virtual.editor.product.PriceMenu;
@@ -37,7 +36,7 @@ import su.nightexpress.nexshop.shop.virtual.menu.ShopLayout;
 import su.nightexpress.nexshop.shop.virtual.type.RotationType;
 import su.nightexpress.nexshop.util.ShopUtils;
 import su.nightexpress.nexshop.util.UnitUtils;
-import su.nightexpress.nightcore.command.experimental.builder.ChainedNodeBuilder;
+import su.nightexpress.nightcore.commands.builder.HubNodeBuilder;
 import su.nightexpress.nightcore.config.FileConfig;
 import su.nightexpress.nightcore.util.*;
 import su.nightexpress.nightcore.util.bukkit.NightItem;
@@ -145,7 +144,7 @@ public class VirtualShopModule extends AbstractModule implements ShopModule {
         this.layoutByIdMap.clear();
         this.shopByIdMap.clear();
 
-        VirtualCommands.unload(this.plugin, this);
+        VirtualCommands.unload();
     }
 
     private void updateConfiguration(@NotNull FileConfig config) {
@@ -181,7 +180,7 @@ public class VirtualShopModule extends AbstractModule implements ShopModule {
     }
 
     @Override
-    protected void loadCommands(@NotNull ChainedNodeBuilder builder) {
+    protected void loadCommands(@NotNull HubNodeBuilder builder) {
         VirtualCommands.load(this.plugin, this, builder);
     }
 

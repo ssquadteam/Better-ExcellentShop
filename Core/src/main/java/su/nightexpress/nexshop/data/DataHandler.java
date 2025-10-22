@@ -152,7 +152,15 @@ public class DataHandler extends AbstractUserDataManager<ShopPlugin, ShopUser> {
 
     @Override
     public void onSynchronize() {
+<<<<<<< HEAD
         this.plugin.getDataManager().handleSynchronization();
+=======
+        // Synchronize only if data manager is loaded.
+        this.plugin.dataAccess(dataManager -> {
+            this.synchronizer.syncAll();
+            this.plugin.getShopManager().updateShops(); // Update shop and product properties with the new datas.
+        });
+>>>>>>> 23ae6d0 (v4.21.0)
 
         ChestShopModule module = this.plugin.getChestShop();
         if (module != null) {

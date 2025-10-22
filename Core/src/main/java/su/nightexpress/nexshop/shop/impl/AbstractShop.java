@@ -114,7 +114,7 @@ public abstract class AbstractShop<P extends AbstractProduct<?>> extends Abstrac
     @Override
     @NotNull
     public Set<P> getProducts() {
-        return new HashSet<>(this.products.values());
+        return new LinkedHashSet<>(this.products.values());
     }
 
     @Override

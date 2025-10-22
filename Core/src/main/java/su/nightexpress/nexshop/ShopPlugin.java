@@ -24,11 +24,18 @@ import su.nightexpress.nexshop.shop.virtual.lang.VirtualLang;
 import su.nightexpress.nexshop.shop.virtual.lang.VirtualIconsLang;
 import su.nightexpress.nexshop.user.UserManager;
 import su.nightexpress.nightcore.NightPlugin;
+<<<<<<< HEAD
 import su.nightexpress.nightcore.command.experimental.ImprovedCommands;
 import su.nightexpress.nightcore.command.experimental.impl.ReloadCommand;
 import su.nightexpress.nightcore.command.experimental.node.ChainedNode;
+=======
+import su.nightexpress.nightcore.commands.Commands;
+import su.nightexpress.nightcore.commands.command.NightCommand;
+import su.nightexpress.nightcore.config.ConfigValue;
+>>>>>>> 23ae6d0 (v4.21.0)
 import su.nightexpress.nightcore.config.FileConfig;
 import su.nightexpress.nightcore.config.PluginDetails;
+import su.nightexpress.nightcore.core.config.CoreLang;
 import su.nightexpress.nightcore.util.Plugins;
 
 import java.io.File;
@@ -37,7 +44,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-public class ShopPlugin extends NightPlugin implements ImprovedCommands {
+public class ShopPlugin extends NightPlugin {
 
     private DataHandler dataHandler;
     private DataManager dataManager;
@@ -72,6 +79,11 @@ public class ShopPlugin extends NightPlugin implements ImprovedCommands {
         this.registerLang(ChestLang.class);
         this.registerLang(VirtualLang.class);
         this.registerLang(VirtualIconsLang.class);
+    }
+
+    @Override
+    protected boolean disableCommandManager() {
+        return true;
     }
 
     @Override
@@ -158,9 +170,16 @@ public class ShopPlugin extends NightPlugin implements ImprovedCommands {
     }
 
     private void loadCommands() {
-        ChainedNode rootNode = this.getRootNode();
-
-        rootNode.addChildren(ReloadCommand.builder(this, Perms.COMMAND_RELOAD));
+        this.rootCommand = NightCommand.forPlugin(this, builder -> {
+            builder.branch(Commands.literal("reload")
+                .description(CoreLang.COMMAND_RELOAD_DESC)
+                .permission(Perms.COMMAND_RELOAD)
+                .executes((context, arguments) -> {
+                    this.doReload(context.getSender());
+                    return true;
+                })
+            );
+        });
     }
 
     @NotNull
