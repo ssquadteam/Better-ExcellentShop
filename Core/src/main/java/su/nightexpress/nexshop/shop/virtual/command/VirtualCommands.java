@@ -195,7 +195,7 @@ public class VirtualCommands {
             return false;
         }
 
-        Player player = arguments.getOr(ARG_PLAYER, Player.class, context.getPlayerOrThrow());
+        Player player = arguments.contains(ARG_PLAYER) ? arguments.getPlayer(ARG_PLAYER) : context.getPlayerOrThrow();
 
         module.openSellMenu(player, false);
 
@@ -206,8 +206,19 @@ public class VirtualCommands {
     }
 
     private static boolean sellAll(@NotNull VirtualShopModule module, @NotNull CommandContext context, @NotNull ParsedArguments arguments) {
+<<<<<<< HEAD
         Player player = CommandUtil.getPlayerOrSender(context, arguments, CommandArguments.PLAYER);
         if (player == null) return false;
+=======
+        if (!arguments.contains(ARG_PLAYER) && !context.isPlayer()) {
+            context.printUsage();
+            return false;
+        }
+
+        Player player = arguments.contains(ARG_PLAYER) ? arguments.getPlayer(ARG_PLAYER) : context.getPlayerOrThrow();
+
+        if (!module.isAvailable(player, true)) return false;
+>>>>>>> e4ab020 (v4.21.1)
 
         module.sellAll(player, context.hasFlag(FLAG_SILENT));
 
@@ -218,8 +229,19 @@ public class VirtualCommands {
     }
 
     private static boolean sellHand(@NotNull VirtualShopModule module, @NotNull CommandContext context, @NotNull ParsedArguments arguments) {
+<<<<<<< HEAD
         Player player = CommandUtil.getPlayerOrSender(context, arguments, CommandArguments.PLAYER);
         if (player == null) return false;
+=======
+        if (!arguments.contains(ARG_PLAYER) && !context.isPlayer()) {
+            context.printUsage();
+            return false;
+        }
+
+        Player player = arguments.contains(ARG_PLAYER) ? arguments.getPlayer(ARG_PLAYER) : context.getPlayerOrThrow();
+
+        if (!module.isAvailable(player, true)) return false;
+>>>>>>> e4ab020 (v4.21.1)
 
         module.sellSlots(player, player.getInventory().getHeldItemSlot());
 
@@ -230,8 +252,19 @@ public class VirtualCommands {
     }
 
     private static boolean sellHandAll(@NotNull VirtualShopModule module, @NotNull CommandContext context, @NotNull ParsedArguments arguments) {
+<<<<<<< HEAD
         Player player = CommandUtil.getPlayerOrSender(context, arguments, CommandArguments.PLAYER);
         if (player == null) return false;
+=======
+        if (!arguments.contains(ARG_PLAYER) && !context.isPlayer()) {
+            context.printUsage();
+            return false;
+        }
+
+        Player player = arguments.contains(ARG_PLAYER) ? arguments.getPlayer(ARG_PLAYER) : context.getPlayerOrThrow();
+
+        if (!module.isAvailable(player, true)) return false;
+>>>>>>> e4ab020 (v4.21.1)
 
         PlayerInventory inventory = player.getInventory();
 
@@ -262,7 +295,7 @@ public class VirtualCommands {
             return false;
         }
 
-        Player player = arguments.getOr(ARG_PLAYER, Player.class, context.getPlayerOrThrow());
+        Player player = arguments.contains(ARG_PLAYER) ? arguments.getPlayer(ARG_PLAYER) : context.getPlayerOrThrow();
         if (player != context.getSender()) {
             VirtualLang.COMMAND_MENU_DONE_OTHERS.message().send(context.getSender(), replacer -> replacer.replace(Placeholders.forPlayer(player)));
         }
@@ -284,7 +317,7 @@ public class VirtualCommands {
             return false;
         }
 
-        Player player = arguments.getOr(ARG_PLAYER, Player.class, context.getPlayerOrThrow());
+        Player player = arguments.contains(ARG_PLAYER) ? arguments.getPlayer(ARG_PLAYER) : context.getPlayerOrThrow();
         VirtualShop shop = arguments.get(ARG_SHOP, VirtualShop.class);
 
         boolean force = context.hasFlag(FLAG_FORCE);
