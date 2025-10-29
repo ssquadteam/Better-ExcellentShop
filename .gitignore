@@ -1,6 +1,5 @@
-/Core/target/
-/Core/pom.xml.versionsBackup
 /.idea/
+<<<<<<< HEAD
 /target/
 /NMS/target/
 /NMS/pom.xml.versionsBackup
@@ -18,3 +17,8 @@ build
 .gradle
 bin
 */bin
+=======
+**/pom.xml.versionsBackup
+**/target/
+!src/**/target/
+>>>>>>> 041f76c (v4.22.0)

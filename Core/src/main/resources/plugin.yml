@@ -5,7 +5,6 @@ description: Advanced 4 in 1 shop plugin with a lot of cool features!
 author: NightExpress
 depend: [ nightcore, EconomyBridge ]
 softdepend:
-  - Citizens
   - WorldGuard
   - Lands
   - Kingdoms
@@ -14,6 +13,7 @@ softdepend:
   - HuskClaims
   - PlaceholderAPI
   - packetevents
+<<<<<<< HEAD
   - Oraxen
   - ItemsAdder
   - Nexo
@@ -24,3 +24,7 @@ softdepend:
   - VotingPlugin
 api-version: 1.18
 folia-supported: true
+=======
+  - PlotSquared
+api-version: 1.18
+>>>>>>> 041f76c (v4.22.0)

@@ -154,7 +154,11 @@ public class ChestConfig {
     public static final ConfigValue<Boolean> SHOP_CREATION_CLAIM_ONLY = ConfigValue.create("Shops.Creation.In_Player_Claims_Only.Enabled",
         false,
         "Sets whether or not players can create shops in their own claims only.",
+<<<<<<< HEAD
         "Supported Plugins: " + HookId.LANDS + ", " + HookId.GRIEF_PREVENTION + ", " + HookId.WORLD_GUARD + ", " + HookId.KINGDOMS);
+=======
+        "Supported Plugins: https://nightexpressdev.com/excellentshop/chest/claim-integrations/");
+>>>>>>> 041f76c (v4.22.0)
 
     public final static ConfigValue<RankMap<Integer>> SHOP_PRODUCTS_MAX_PER_RANK = ConfigValue.create("Shops.Products.Max_Products_Per_Shop",
         (cfg, path, rank) -> RankMap.read(cfg, path, Integer.class, 3),
