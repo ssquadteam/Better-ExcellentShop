@@ -21,8 +21,8 @@ dependencies {
     compileOnly 'net.william278.huskclaims:huskclaims-bukkit:1.5.2'
     compileOnly 'com.github.angeschossen:UpgradeableHoppersAPI:4.13.10'
 
-    compileOnly name: 'nightcore-2.7.20', version: '2.7.20'
-    compileOnly name: 'CoinsEngine-2.5.7', version: '2.5.7'
+    compileOnly name: 'nightcore-3.0.3', version: '3.0.3'
+    compileOnly name: 'CoinsEngine-2.7.0', version: '2.7.0'
     compileOnly name: 'EconomyBridge-1.2.4', version: '1.2.4'
     compileOnly name: 'advancedregionmarket-3.5.5', version: '3.5.5'
 }
